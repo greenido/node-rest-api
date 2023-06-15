@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Data Fetching and Table with DataTables</title>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+</head>
+<body>
+  <table id="data-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <br><br><hr>
+  <form id="add-user-form">
+    <input type="text" id="name-input" placeholder="Name" required>
+    <input type="email" id="email-input" placeholder="Email" required>
+    <button type="submit">Add User</button>
+  </form>
+
+  <br>
+  <div id="update-user-modal" style="display: none;">
+    <h2>Update User</h2>
+    <form id="update-user-form">
+      <input type="text" id="update-name-input" placeholder="Name" required>
+      <input type="email" id="update-email-input" placeholder="Email" required>
+      <button type="submit">Update User</button>
+    </form>
+  </div>
+
+  <!-- JS mode -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+
+  <script>
+    const ENDPOINT = 'http://localhost:3000/users/';
+
+    $(document).ready(function() {
+      var selectedUserId = null; // Track the selected user ID
+
+      // Fetch data from Node.js API
+      $.get(ENDPOINT, function(data) {
+        // Populate table with fetched data
+        $.each(data.users, function(index, item) {
+          $('#data-table').append('<tr data-user-id="' + item.id + '"><td>' + item.name + '</td><td>' + item.email + '</td></tr>');
+        });
+
+        // Initialize DataTables
+        $('#data-table').DataTable();
+
+        // Handle row click event
+        $('#data-table tbody').on('click', 'tr', function() {
+          selectedUserId = $(this).data('user-id');
+
+          // Get user details from the selected row
+          var name = $(this).find('td:eq(0)').text();
+          var email = $(this).find('td:eq(1)').text();
+          
+
+          // Set values in the update user form
+          $('#update-name-input').val(name);
+          $('#update-email-input').val(email);
+          
+          // Show the update user modal dialog
+          $('#update-user-modal').show();
+        });
+      }).fail(function() {
+        alert('Error fetching data from the API');
+      });
+
+        //
+       // Handle form submission
+       //
+       $('#add-user-form').submit(function(event) {
+        event.preventDefault();
+        var name = $('#name-input').val();
+        var email = $('#email-input').val();
+        var newUser = {
+          name: name,
+          email: email
+        };
+
+        //
+        // POST request to add a new user
+        //
+        $.post(ENDPOINT, newUser, function(response) {
+          // Refresh the table to display the new user
+          $('#data-table').DataTable().destroy();
+          $('#data-table tbody').empty();
+
+          // Fetch updated data from the API
+          $.get(ENDPOINT, function(data) {
+            // Populate table with updated data
+            $.each(data.users, function(index, item) {
+              $('#data-table').append('<tr><td>' + item.name + '</td><td>' + item.email + '</td> </tr>');
+            });
+
+            // Reinitialize DataTables
+            $('#data-table').DataTable();
+          }).fail(function() {
+            alert('Error fetching data from the API');
+          });
+
+          // Reset form input values
+          $('#name-input').val('');
+          $('#email-input').val('');
+
+          console.log('User added successfully: ', response);
+        }).fail(function() {
+          alert('Error adding user');
+        });
+      }); // end of ADD user form submission
+
+
+      //
+      // Handle update user form submission
+      //
+      $('#update-user-form').submit(function(event) {
+        event.preventDefault();
+
+        // Get updated form input values
+        var name = $('#update-name-input').val();
+        var email = $('#update-email-input').val();
+        var updatedUser = {
+          name: name,
+          email: email,
+          
+        };
+
+        // Send the updated user data to the server
+        $.ajax({
+          url: ENDPOINT + selectedUserId,
+          type: 'PUT',
+          data: updatedUser,
+          success: function(response) {
+            // Refresh the table to display the updated user
+            $('#data-table').DataTable().destroy();
+            $('#data-table tbody').empty();
+
+            // Fetch updated data from the API
+            $.get(ENDPOINT, function(data) {
+              // Populate table with updated data
+              $.each(data.users, function(index, item) {
+                $('#data-table').append('<tr data-user-id="' + item.id + '"><td>' + item.name + '</td><td>' +
+                   item.email + '</td></tr>');
+              });
+
+              // Reinitialize DataTables
+              $('#data-table').DataTable();
+            }).fail(function() {
+              alert('Error fetching data from the API');
+            });
+
+            // Hide the update user modal dialog
+            $('#update-user-modal').hide();
+
+            alert('User updated successfully!');
+          },
+          error: function() {
+            alert('Error updating user');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

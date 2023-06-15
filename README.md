@@ -21,8 +21,8 @@ And check if both of them are up and running:
 docker ps -a
 ```
 
-- Make a GET request to http://localhost:3000/users
-- 
+- Make a request to http://localhost:3000/users
+  
 
 
 ## Misc 🍣
