@@ -1,8 +1,12 @@
 const User = require('../models/user');
 
+//
 // CRUD Controllers
+//
 
+//
 //get all users
+//
 exports.getUsers = (req, res, next) => {
     User.findAll()
         .then(users => {
@@ -11,7 +15,9 @@ exports.getUsers = (req, res, next) => {
         .catch(err => console.log(err));
 }
 
+//
 //get user by id
+//
 exports.getUser = (req, res, next) => {
     const userId = req.params.userId;
     User.findByPk(userId)
@@ -24,7 +30,9 @@ exports.getUser = (req, res, next) => {
         .catch(err => console.log(err));
 }
 
-//create user
+//
+// create user
+//
 exports.createUser = (req, res, next) => {
   const name = req.body.name;
   const email = req.body.email;
@@ -44,7 +52,9 @@ exports.createUser = (req, res, next) => {
     }); 
 }
 
-//update user
+//
+// update user
+//
 exports.updateUser = (req, res, next) => {
   const userId = req.params.userId;
   const updatedName = req.body.name;
@@ -64,7 +74,9 @@ exports.updateUser = (req, res, next) => {
     .catch(err => console.log(err));
 }
 
+//
 //delete user
+//
 exports.deleteUser = (req, res, next) => {
   const userId = req.params.userId;
   User.findByPk(userId)
