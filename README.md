@@ -31,5 +31,9 @@ docker ps -a
 
 
 ## References 🏔️
+- https://getbootstrap.com/
+- https://datatables.net/
+- https://www.postgresql.org/docs/13/index.html
+  
 ----
 ![](https://source.unsplash.com/random/600×800/?fruit))
