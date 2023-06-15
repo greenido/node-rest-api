@@ -1,171 +1,257 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Data Fetching and Table with DataTables</title>
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
-</head>
-<body>
-  <table id="data-table">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Email</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <head>
+    <title>Data Fetching and Table with DataTables</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css"
+    />
+    <style>
+      .delete-user-btn {
+        background-color: red;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        text-align: center;
+        text-transform: uppercase;
+        font-size: 16px;
+        transition: 0.3s;
+      }
 
-  <br><br><hr>
-  <form id="add-user-form">
-    <input type="text" id="name-input" placeholder="Name" required>
-    <input type="email" id="email-input" placeholder="Email" required>
-    <button type="submit">Add User</button>
-  </form>
+      .delete-user-btn:hover {
+        background-color: #ff0000;
+        color: white;
+        cursor: pointer;
+        text-align: center;
+        text-transform: uppercase;
+        font-size: 16px;
+        transition: 0.3s;
+      }
+    </style>
+  </head>
+  <body>
+    <table id="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
 
-  <br>
-  <div id="update-user-modal" style="display: none;">
-    <h2>Update User</h2>
-    <form id="update-user-form">
-      <input type="text" id="update-name-input" placeholder="Name" required>
-      <input type="email" id="update-email-input" placeholder="Email" required>
-      <button type="submit">Update User</button>
+    <br /><br />
+    <hr />
+    <form id="add-user-form">
+      <input type="text" id="name-input" placeholder="Name" required />
+      <input type="email" id="email-input" placeholder="Email" required />
+      <button type="submit">Add User</button>
     </form>
-  </div>
 
-  <!-- JS mode -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <br />
+    <div id="update-user-modal" style="display: none">
+      <h2>Update User</h2>
+      <form id="update-user-form">
+        <input type="text" id="update-name-input" placeholder="Name" required />
+        <input
+          type="email"
+          id="update-email-input"
+          placeholder="Email"
+          required
+        />
+        <button type="submit">Update User</button>
+      </form>
+    </div>
 
-  <script>
-    const ENDPOINT = 'http://localhost:3000/users/';
+    <!-- JS mode -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
 
-    $(document).ready(function() {
-      var selectedUserId = null; // Track the selected user ID
+    <script>
+      const ENDPOINT = "http://localhost:3000/users/";
 
-      // Fetch data from Node.js API
-      $.get(ENDPOINT, function(data) {
-        // Populate table with fetched data
-        $.each(data.users, function(index, item) {
-          $('#data-table').append('<tr data-user-id="' + item.id + '"><td>' + item.name + '</td><td>' + item.email + '</td></tr>');
-        });
-
-        // Initialize DataTables
-        $('#data-table').DataTable();
-
-        // Handle row click event
-        $('#data-table tbody').on('click', 'tr', function() {
-          selectedUserId = $(this).data('user-id');
-
-          // Get user details from the selected row
-          var name = $(this).find('td:eq(0)').text();
-          var email = $(this).find('td:eq(1)').text();
-          
-
-          // Set values in the update user form
-          $('#update-name-input').val(name);
-          $('#update-email-input').val(email);
-          
-          // Show the update user modal dialog
-          $('#update-user-modal').show();
-        });
-      }).fail(function() {
-        alert('Error fetching data from the API');
-      });
+      $(document).ready(function () {
+        let selectedUserId = null; // Track the selected user ID
+        let curUserName = null;
 
         //
-       // Handle form submission
-       //
-       $('#add-user-form').submit(function(event) {
-        event.preventDefault();
-        var name = $('#name-input').val();
-        var email = $('#email-input').val();
-        var newUser = {
-          name: name,
-          email: email
-        };
-
+        // Fetch data from Node.js API
         //
-        // POST request to add a new user
-        //
-        $.post(ENDPOINT, newUser, function(response) {
-          // Refresh the table to display the new user
-          $('#data-table').DataTable().destroy();
-          $('#data-table tbody').empty();
-
-          // Fetch updated data from the API
-          $.get(ENDPOINT, function(data) {
-            // Populate table with updated data
-            $.each(data.users, function(index, item) {
-              $('#data-table').append('<tr><td>' + item.name + '</td><td>' + item.email + '</td> </tr>');
-            });
-
-            // Reinitialize DataTables
-            $('#data-table').DataTable();
-          }).fail(function() {
-            alert('Error fetching data from the API');
+        $.get(ENDPOINT, function (data) {
+          // Populate table with fetched data
+          $.each(data.users, function (index, item) {
+            let deleteIcon =
+            '<button class="delete-user-btn" data-user-id="' +
+            item.id + '"> Delete </button>';
+            $("#data-table").append(
+              '<tr data-user-id="' +
+                item.id +
+                '"><td>' +
+                item.name +
+                "</td><td>" +
+                item.email +
+                "</td><td>" + deleteIcon  + "</td>   </tr>"
+            );
           });
 
-          // Reset form input values
-          $('#name-input').val('');
-          $('#email-input').val('');
+          // Initialize DataTables
+          $("#data-table").DataTable();
 
-          console.log('User added successfully: ', response);
-        }).fail(function() {
-          alert('Error adding user');
+          //
+          // Handle row click event
+          //
+          $("#data-table tbody").on("click", "tr", function () {
+            selectedUserId = $(this).data("user-id");
+
+            // Get user details from the selected row
+            curUserName = $(this).find("td:eq(0)").text();
+            var email = $(this).find("td:eq(1)").text();
+
+            // Set values in the update user form
+            $("#update-name-input").val(curUserName);
+            $("#update-email-input").val(email);
+
+            // Show the update user modal dialog
+            $("#update-user-modal").show();
+          });
+        }).fail(function () {
+          console.error("🤔 Error fetching data from the API");
         });
-      }); // end of ADD user form submission
 
+        //
+        // Handle delete button click event
+        //
+        $('#data-table tbody').on('click', '.delete-user-btn', function(event) {
+          event.stopPropagation(); // Prevent row click event from triggering
+          curUserName = $(this).closest('tr').find('td:eq(0)').text();
+          let deleteConfirmed = confirm('🚨 Are you sure you want to delete: ' + curUserName + ' ?');
+          if (deleteConfirmed) {
+            let userId = $(this).data('user-id');
 
-      //
-      // Handle update user form submission
-      //
-      $('#update-user-form').submit(function(event) {
-        event.preventDefault();
+            // Send the delete request to the server
+            $.ajax({
+              url: ENDPOINT + userId,
+              type: 'DELETE',
+              success: function(response) {
+                // Remove the deleted user row from the table
+                $('#data-table').DataTable().row($(event.target).closest('tr')).remove().draw();
+                console.log('User deleted successfully: ', response);
+              },
+              error: function() {
+                alert('Error deleting user');
+              }
+            });
+          }
+        });
 
-        // Get updated form input values
-        var name = $('#update-name-input').val();
-        var email = $('#update-email-input').val();
-        var updatedUser = {
-          name: name,
-          email: email,
-          
-        };
+        //
+        // Handle ADD user form submission
+        //
+        $("#add-user-form").submit(function (event) {
+          event.preventDefault();
+          var name = $("#name-input").val();
+          var email = $("#email-input").val();
+          var newUser = {
+            name: name,
+            email: email,
+          };
 
-        // Send the updated user data to the server
-        $.ajax({
-          url: ENDPOINT + selectedUserId,
-          type: 'PUT',
-          data: updatedUser,
-          success: function(response) {
-            // Refresh the table to display the updated user
-            $('#data-table').DataTable().destroy();
-            $('#data-table tbody').empty();
+          //
+          // POST request to add a new user
+          //
+          $.post(ENDPOINT, newUser, function (response) {
+            // Refresh the table to display the new user
+            $("#data-table").DataTable().destroy();
+            $("#data-table tbody").empty();
 
             // Fetch updated data from the API
-            $.get(ENDPOINT, function(data) {
+            $.get(ENDPOINT, function (data) {
               // Populate table with updated data
-              $.each(data.users, function(index, item) {
-                $('#data-table').append('<tr data-user-id="' + item.id + '"><td>' + item.name + '</td><td>' +
-                   item.email + '</td></tr>');
+              $.each(data.users, function (index, item) {
+                $("#data-table").append(
+                  "<tr><td>" +
+                    item.name +
+                    "</td><td>" +
+                    item.email +
+                    "</td> </tr>"
+                );
               });
 
               // Reinitialize DataTables
-              $('#data-table').DataTable();
-            }).fail(function() {
-              alert('Error fetching data from the API');
+              $("#data-table").DataTable();
+            }).fail(function () {
+              alert("Error fetching data from the API");
             });
 
-            // Hide the update user modal dialog
-            $('#update-user-modal').hide();
+            // Reset form input values
+            $("#name-input").val("");
+            $("#email-input").val("");
 
-            alert('User updated successfully!');
-          },
-          error: function() {
-            alert('Error updating user');
-          }
+            console.log("User added successfully: ", response);
+          }).fail(function () {
+            alert("Error adding user");
+          });
+        }); // end of ADD user form submission
+
+        //
+        // Handle update user form submission
+        //
+        $("#update-user-form").submit(function (event) {
+          event.preventDefault();
+
+          // Get updated form input values
+          var name = $("#update-name-input").val();
+          var email = $("#update-email-input").val();
+          var updatedUser = {
+            name: name,
+            email: email,
+          };
+
+          // Send the updated user data to the server
+          $.ajax({
+            url: ENDPOINT + selectedUserId,
+            type: "PUT",
+            data: updatedUser,
+            success: function (response) {
+              // Refresh the table to display the updated user
+              $("#data-table").DataTable().destroy();
+              $("#data-table tbody").empty();
+
+              // Fetch updated data from the API
+              $.get(ENDPOINT, function (data) {
+                // Populate table with updated data
+                $.each(data.users, function (index, item) {
+                  $("#data-table").append(
+                    '<tr data-user-id="' +
+                      item.id +
+                      '"><td>' +
+                      item.name +
+                      "</td><td>" +
+                      item.email +
+                      "</td></tr>"
+                  );
+                });
+
+                // Reinitialize DataTables
+                $("#data-table").DataTable();
+              }).fail(function () {
+                alert("Error fetching data from the API");
+              });
+
+              // Hide the update user modal dialog
+              $("#update-user-modal").hide();
+
+              alert("User updated successfully!");
+            },
+            error: function () {
+              alert("Error updating user");
+            },
+          });
         });
       });
-    });
-  </script>
-</body>
+    </script>
+  </body>
 </html>
