@@ -4,13 +4,13 @@ services:
   node_app:
     container_name: node_app
     build: .
-    image: francescoxx/node_live_app
+    image: greenido/node-rest-api
     ports:
       - "3000:3000"
     environment:
-      - PG_DB=node_live_db
-      - PG_USER=francesco
-      - PG_PASSWORD=12345
+      - PG_DB=test-1
+      - PG_USER=greenido
+      - PG_PASSWORD=TODO-ADD-IT-🍓
       - PG_HOST=node_db
     depends_on:
       - node_db
@@ -21,9 +21,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=node_live_db
-      - POSTGRES_USER=francesco
-      - POSTGRES_PASSWORD=12345
+      - POSTGRES_DB=test-1
+      - POSTGRES_USER=greenido
+      - POSTGRES_PASSWORD=TODO-ADD-IT-🍓
     volumes:
       - node_db_data:/var/lib/postgresql/data
 
