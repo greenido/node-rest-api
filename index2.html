@@ -12,11 +12,11 @@
         background-color: red;
         color: white;
         border: none;
-        padding: 10px 20px;
+        padding: 0.4em;
         cursor: pointer;
         text-align: center;
         text-transform: uppercase;
-        font-size: 16px;
+        font-size: 12px;
         transition: 0.3s;
       }
 
@@ -26,7 +26,7 @@
         cursor: pointer;
         text-align: center;
         text-transform: uppercase;
-        font-size: 16px;
+        font-size: 12px;
         transition: 0.3s;
       }
     </style>
@@ -73,19 +73,17 @@
     <script>
       const ENDPOINT = "http://localhost:3000/users/";
 
-      $(document).ready(function () {
-        let selectedUserId = null; // Track the selected user ID
-        let curUserName = null;
-
-        //
-        // Fetch data from Node.js API
-        //
+      //
+      // Fetch data from Node.js API
+      //
+      function updateMainTable() {
         $.get(ENDPOINT, function (data) {
           // Populate table with fetched data
           $.each(data.users, function (index, item) {
             let deleteIcon =
-            '<button class="delete-user-btn" data-user-id="' +
-            item.id + '"> Delete </button>';
+              '<button class="delete-user-btn" data-user-id="' +
+              item.id +
+              '"> Delete </button>';
             $("#data-table").append(
               '<tr data-user-id="' +
                 item.id +
@@ -93,59 +91,81 @@
                 item.name +
                 "</td><td>" +
                 item.email +
-                "</td><td>" + deleteIcon  + "</td>   </tr>"
+                "</td><td>" +
+                deleteIcon +
+                "</td>   </tr>"
             );
           });
 
           // Initialize DataTables
           $("#data-table").DataTable();
-
-          //
-          // Handle row click event
-          //
-          $("#data-table tbody").on("click", "tr", function () {
-            selectedUserId = $(this).data("user-id");
-
-            // Get user details from the selected row
-            curUserName = $(this).find("td:eq(0)").text();
-            var email = $(this).find("td:eq(1)").text();
-
-            // Set values in the update user form
-            $("#update-name-input").val(curUserName);
-            $("#update-email-input").val(email);
-
-            // Show the update user modal dialog
-            $("#update-user-modal").show();
-          });
         }).fail(function () {
           console.error("🤔 Error fetching data from the API");
+        });
+      }
+
+      //
+      //
+      //
+      $(document).ready(function () {
+        let selectedUserId = null; // Track the selected user ID
+        let curUserName = null;
+
+        updateMainTable();
+
+        //
+        // Handle row click event
+        //
+        $("#data-table tbody").on("click", "tr", function () {
+          selectedUserId = $(this).data("user-id");
+
+          // Get user details from the selected row
+          curUserName = $(this).find("td:eq(0)").text();
+          var email = $(this).find("td:eq(1)").text();
+
+          // Set values in the update user form
+          $("#update-name-input").val(curUserName);
+          $("#update-email-input").val(email);
+
+          // Show the update user modal dialog
+          $("#update-user-modal").show();
         });
 
         //
         // Handle delete button click event
         //
-        $('#data-table tbody').on('click', '.delete-user-btn', function(event) {
-          event.stopPropagation(); // Prevent row click event from triggering
-          curUserName = $(this).closest('tr').find('td:eq(0)').text();
-          let deleteConfirmed = confirm('🚨 Are you sure you want to delete: ' + curUserName + ' ?');
-          if (deleteConfirmed) {
-            let userId = $(this).data('user-id');
+        $("#data-table tbody").on(
+          "click",
+          ".delete-user-btn",
+          function (event) {
+            event.stopPropagation(); // Prevent row click event from triggering
+            curUserName = $(this).closest("tr").find("td:eq(0)").text();
+            let deleteConfirmed = confirm(
+              "🚨 Are you sure you want to delete: " + curUserName + " ?"
+            );
+            if (deleteConfirmed) {
+              let userId = $(this).data("user-id");
 
-            // Send the delete request to the server
-            $.ajax({
-              url: ENDPOINT + userId,
-              type: 'DELETE',
-              success: function(response) {
-                // Remove the deleted user row from the table
-                $('#data-table').DataTable().row($(event.target).closest('tr')).remove().draw();
-                console.log('User deleted successfully: ', response);
-              },
-              error: function() {
-                alert('Error deleting user');
-              }
-            });
+              // Send the delete request to the server
+              $.ajax({
+                url: ENDPOINT + userId,
+                type: "DELETE",
+                success: function (response) {
+                  // Remove the deleted user row from the table
+                  $("#data-table")
+                    .DataTable()
+                    .row($(event.target).closest("tr"))
+                    .remove()
+                    .draw();
+                  console.log("User deleted successfully: ", response);
+                },
+                error: function () {
+                  console.log("Error deleting user");
+                },
+              });
+            }
           }
-        });
+        );
 
         //
         // Handle ADD user form submission
@@ -167,24 +187,7 @@
             $("#data-table").DataTable().destroy();
             $("#data-table tbody").empty();
 
-            // Fetch updated data from the API
-            $.get(ENDPOINT, function (data) {
-              // Populate table with updated data
-              $.each(data.users, function (index, item) {
-                $("#data-table").append(
-                  "<tr><td>" +
-                    item.name +
-                    "</td><td>" +
-                    item.email +
-                    "</td> </tr>"
-                );
-              });
-
-              // Reinitialize DataTables
-              $("#data-table").DataTable();
-            }).fail(function () {
-              alert("Error fetching data from the API");
-            });
+            updateMainTable();
 
             // Reset form input values
             $("#name-input").val("");
@@ -192,7 +195,7 @@
 
             console.log("User added successfully: ", response);
           }).fail(function () {
-            alert("Error adding user");
+            console.log("Error adding user");
           });
         }); // end of ADD user form submission
 
@@ -221,33 +224,15 @@
               $("#data-table tbody").empty();
 
               // Fetch updated data from the API
-              $.get(ENDPOINT, function (data) {
-                // Populate table with updated data
-                $.each(data.users, function (index, item) {
-                  $("#data-table").append(
-                    '<tr data-user-id="' +
-                      item.id +
-                      '"><td>' +
-                      item.name +
-                      "</td><td>" +
-                      item.email +
-                      "</td></tr>"
-                  );
-                });
-
-                // Reinitialize DataTables
-                $("#data-table").DataTable();
-              }).fail(function () {
-                alert("Error fetching data from the API");
-              });
+              updateMainTable();
 
               // Hide the update user modal dialog
               $("#update-user-modal").hide();
 
-              alert("User updated successfully!");
+              console.log("User updated successfully!");
             },
             error: function () {
-              alert("Error updating user");
+              console.log("Error updating user");
             },
           });
         });
