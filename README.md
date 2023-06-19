@@ -29,6 +29,10 @@ docker ps -a
 - https://labs.play-with-docker.com/
 - https://www.docker.com/blog/how-to-deploy-on-remote-docker-hosts-with-docker-compose/
 
+## Survey 📝
+- https://surveyjs.io/form-library/documentation/get-started-react
+- https://codesandbox.io/s/vcmp97?file=/src/SurveyComponent.jsx
+- [NodeJs manage surveys](https://github.com/surveyjs/surveyjs-nodejs)
 
 ## References 🏔️
 - https://getbootstrap.com/
