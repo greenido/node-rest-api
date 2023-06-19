@@ -29,6 +29,7 @@ app.get("/", (req, res, next) => {
 });
 
 //CRUD routes for userse
+app.use("/surveys", require("./routes/surveys"));
 app.use("/users", require("./routes/users"));
 
 //
